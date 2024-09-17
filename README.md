@@ -68,7 +68,6 @@ This project provides a Python interface to interact with various models hosted 
 - pip install requests
 # Usage/Examples
 
-## Text Generation
 ```python
 from DeepInfra import DeepInfra
 
