@@ -1,9 +1,9 @@
 import re
+import os
 import json
 import base64
 import random
 import requests
-from typing import Literal
 
 UserAgents = [
     "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
@@ -365,7 +365,6 @@ class DeepInfra:
 
             # Prepare the headers for the API request
             headers = {"Accept": "text/event-stream","Accept-Encoding": "gzip, deflate, br, zstd","Accept-Language": "en-US,en;q=0.9,hi;q=0.8","Connection": "keep-alive","Content-Type": "application/json","Dnt": "1","Host": "api.deepinfra.com","Origin": "https://deepinfra.com","Referer": "https://deepinfra.com/","Sec-Ch-Ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"","Sec-Ch-Ua-Mobile": "?0","Sec-Ch-Ua-Platform": "\"Windows\"","Sec-Fetch-Dest": "empty","Sec-Fetch-Mode": "cors","Sec-Fetch-Site": "same-site","User-Agent": f"{random.choice(UserAgents)}","X-Deepinfra-Source": "web-page"}
-            print(f"User-Agent: \033[1;33m{headers}\033[0m")
 
             # Prepare the payload for the API request
             payload = {
@@ -407,6 +406,274 @@ class DeepInfra:
             except Exception as e:
                 # Catch and return any exceptions that occur during the request or processing
                 return e
+
+    class TextToImage:
+        """
+        Text-to-image AI models are a powerful technology that can generate images based on textual descriptions, making them an essential tool for content creation, assistive technology, entertainment, and education.
+
+        The text description is first processed by a natural language processing (NLP) model, which extracts relevant features and keywords. This information is then passed to a generative model, which uses trained parameters to generate an image that matches the textual description. This innovative technology has the potential to transform visual content creation, making it more accessible and user-friendly.
+
+        For marketing and advertising professionals, text-to-image AI models can help create images that are tailored to specific campaigns or target audiences. Visually impaired individuals can use these models to better understand and interact with their environment, making them a valuable assistive technology. The entertainment industry can use text-to-image models to generate images for video games, virtual reality, and other immersive experiences. Finally, educators can use text-to-image models to create interactive diagrams, charts, and other resources to help students better understand complex concepts.
+
+        # Example
+            >>> if __name__=="__main__":
+            >>> ai = TextToImage()
+            >>> Model = "FLUX-1-dev"
+            >>> print(ai.generate(prompt="generate an image of a dog sitting on a table with its puppies", model=Model, num_images=4, image_size="512x512", bearer_token="Bearer jwt:eyxxxY", prints=True))
+        
+        For more information visit: https://deepinfra.com/models/text-to-image
+        """
+        def list_available_models(self) -> str:
+            """List all available models with their Documentations."""
+            print("Available Models:\n")
+        
+            Available_Models = {
+                "FLUX-1-dev":"FLUX.1-dev is a state-of-the-art 12 billion parameter rectified flow transformer developed by Black Forest Labs. This model excels in text-to-image generation, providing highly accurate and detailed outputs. It is particularly well-regarded for its ability to follow complex prompts and generate anatomically accurate images, especially with challenging details like hands and faces.\nFor more information visit: https://deepinfra.com/black-forest-labs/FLUX-1-dev",
+                
+                "FLUX-1-schnell":"FLUX.1 [schnell] is a 12 billion parameter rectified flow transformer capable of generating images from text descriptions. This model offers cutting-edge output quality and competitive prompt following, matching the performance of closed source alternatives. Trained using latent adversarial diffusion distillation, FLUX.1 [schnell] can generate high-quality images in only 1 to 4 steps.\nFor more information visit: https://deepinfra.com/black-forest-labs/FLUX-1-schnell",
+                
+                "Stable-diffusion-v1-4":"Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input.\nFor more information visit: https://deepinfra.com/CompVis/stable-diffusion-v1-4",
+
+                "Deliberate":"The Deliberate Model allows for the creation of anything desired, with the potential for better results as the user's knowledge and detail in the prompt increase. The model is ideal for meticulous anatomy artists, creative prompt writers, art designers, and those seeking explicit content.\nFor more information visit: https://deepinfra.com/XpucT/Deliberate",
+
+                "Openjourney":"Text to image model based on Stable Diffusion.\nFor more information visit: https://deepinfra.com/prompthero/openjourney",
+
+                "Stable-diffusion-v1-5":"Most widely used version of Stable Diffusion. Trained on 512x512 images, it can generate realistic images given text description\nFor more information visit: https://deepinfra.com/runwayml/stable-diffusion-v1-5",
+                
+                "Sdxl":"SDXL consists of an ensemble of experts pipeline for latent diffusion: In a first step, the base model is used to generate (noisy) latents, which are then further processed with a refinement model (available here: https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/) specialized for the final denoising steps. Note that the base model can be used as a standalone module.\nFor more information visit: https://deepinfra.com/stability-ai/sdxl",
+                
+                "Sdxl-turbo":"The SDXL Turbo model, developed by Stability AI, is an optimized, fast text-to-image generative model. It is a distilled version of SDXL 1.0, leveraging Adversarial Diffusion Distillation (ADD) to generate high-quality images in less steps.\nFor more information visit: https://deepinfra.com/stabilityai/sdxl-turbo",
+                
+                "Stable-diffusion-2-1":"Stable Diffusion is a latent text-to-image diffusion model. Generate realistic images given text description\nFor more information visit: https://deepinfra.com/stabilityai/stable-diffusion-2-1"
+                
+            }
+
+            for model_name, model_documentation in Available_Models.items():
+                print(f"{model_name} : {model_documentation}\n")
+            return 'You Can Use any Model by giving its name in generate function like: generate(prompt="generate an image of a dog sitting on a table with its puppies", model="FLUX-1-dev", bearer_token="Bearer jwt:eyxxxY")'
+        
+        def generate(
+            self,
+            prompt:str, 
+            bearer_token:str, 
+            model:str, 
+            negative_prompt:str = None, 
+            num_images:int = 4, 
+            guidance_scale: float = 7.5, 
+            strength:float = None, 
+            image_size:str = "512x512", 
+            upload_image_path:str = None, 
+            mask_image:str = None, 
+            refine:str = None, 
+            High_Noise_Frac:float = None, 
+            apply_watermark:str = None, 
+            image_filename_prefix:str = "output_image", 
+            prints:bool = True
+            ) -> str:
+            """
+            Generates images using the selected AI model with optional parameters for fine-tuning the output.
+
+            # Args
+                - prompt (str): The text prompt to guide image generation.
+                - bearer_token (str): The API bearer token for authorization.
+                - model (str): The model to use for generation (e.g., 'FLUX-1-dev', 'Stable-diffusion-v1-4').
+                - negative_prompt (str, optional): Text to influence the model to avoid certain concepts.
+                - num_images (int, optional): The number of images to generate. Default is 4, can be between 1 and 4.
+                - guidance_scale (float, optional): How much the model should focus on the prompt (higher means - more focused). Default is 7.5.
+                - strength (float, optional): How much to follow an uploaded image. Ranges from 0 to 1 (1 means ignore the image).
+                - image_size (str, optional): Desired image size, must be one of predefined values (default is '512x512').
+                - upload_image_path (str, optional): Path to an image to guide the generation process.
+                - mask_image (str, optional): Path to an image mask for inpainting tasks.
+                - refine (str, optional): Refiner option, can be 'no_refiner', 'expert_ensemble_refiner', or 'base_image_refiner'.
+                - High_Noise_Frac (float, optional): Noise fraction for 'expert_ensemble_refiner'. Range: 0 to 1.
+                - apply_watermark (str, optional): Whether to apply watermark ('yes' or 'no').
+                - image_filename_prefix (str, optional): Prefix for the output image filenames. Default is 'output_image'.
+                - prints (bool, optional): Whether to print internal information and debug logs. Default is True.
+
+            # Returns
+                - str: A success message indicating image file saving, or an error message if something went wrong.
+
+            # Example
+                ```python
+                result = generate(
+                    prompt="A futuristic city skyline", 
+                    bearer_token="Bearer my_token", 
+                    model="FLUX-1-dev", 
+                    num_images=2, 
+                    image_size="512x512"
+                    )
+                print(result)
+                ```
+                
+            # Notes
+            - If the model does not support certain parameters, the function will return an error specifying the unsupported parameters.
+            - Ensure the `bearer_token` is valid and includes the "Bearer" prefix.
+            - Images are saved as .jpg files in the current working directory with names like "output_image-1.jpg", "output_image-2.jpg", etc.
+            """
+            # Define supported parameters for each model  
+            model_parameters = {
+                "FLUX-1-dev": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token"],
+                "FLUX-1-schnell": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token"],
+                "Stable-diffusion-v1-4": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token", 
+                                        "negative_prompt", "upload_image_path", "strength"],
+                "Deliberate": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token", 
+                            "negative_prompt", "upload_image_path", "strength"],
+                "Openjourney": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token", 
+                                "negative_prompt", "upload_image_path", "strength"],
+                "Stable-diffusion-v1-5": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token", 
+                                        "negative_prompt", "upload_image_path", "strength"],
+                "Sdxl": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token", 
+                        "negative_prompt", "upload_image_path", "strength", "mask_image", "refine", 
+                        "High_Noise_Frac", "apply_watermark"],
+                "Sdxl-turbo": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token"],
+                "Stable-diffusion-2-1": ["prompt", "num_images", "guidance_scale", "height", "width", "bearer_token", 
+                                        "negative_prompt", "upload_image_path", "strength"],
+            }
+
+            Available_Models = {
+                "FLUX-1-dev":"black-forest-labs/FLUX-1-dev",
+                "FLUX-1-schnell":"black-forest-labs/FLUX-1-schnell",
+                "Stable-diffusion-v1-4":"CompVis/stable-diffusion-v1-4",
+                "Deliberate":"XpucT/Deliberate",
+                "Openjourney":"prompthero/openjourney",
+                "Stable-diffusion-v1-5":"runwayml/Stable-diffusion-v1-5",
+                "Sdxl":"stability-ai/sdxl",
+                "Sdxl-turbo":"stabilityai/sdxl-turbo",
+                "Stable-diffusion-2-1":"stabilityai/stable-diffusion-2-1"
+            }
+
+            # Predefined image sizes with width and height in pixels
+            image_sizes = {
+                "128x128": {"width": 128, "height": 128},
+                "256x256": {"width": 256, "height": 256},
+                "384x384": {"width": 384, "height": 384},
+                "448x448": {"width": 448, "height": 448},
+                "512x512": {"width": 512, "height": 512},
+                "576x576": {"width": 576, "height": 576},
+                "640x640": {"width": 640, "height": 640},
+                "704x704": {"width": 704, "height": 704},
+                "768x768": {"width": 768, "height": 768},
+                "832x832": {"width": 832, "height": 832},
+                "896x896": {"width": 896, "height": 896},
+                "960x960": {"width": 960, "height": 960},
+                "1024x1024": {"width": 1024, "height": 1024}
+            }
+            
+            # Validate if the chosen model is supported
+            if model not in Available_Models.keys():
+                available_models = ', '.join(Available_Models.keys())
+                return f"Model Name '{model}' is not valid. Please select a valid model.\nAvailable models are: {available_models}"
+            model_value = Available_Models[model]
+            
+            # Validate the image size; return error if invalid
+            if image_size not in image_sizes:
+                available_sizes = ', '.join(image_sizes.keys())
+                return f"Image size '{image_size}' is not valid. Please select a valid size from: {available_sizes}"
+
+            # Extract width and height for the selected image size
+            width = image_sizes[image_size]['width']
+            height = image_sizes[image_size]['height']
+
+            # Supported parameters for the current model
+            supported_params = model_parameters[model]
+
+            # Build the payload dynamically based on supported parameters
+            payload = {}
+            params = {
+                "prompt": prompt,
+                "num_images": num_images,
+                "guidance_scale": guidance_scale,
+                "width": width,
+                "height": height,
+                "bearer_token": bearer_token,
+                "negative_prompt": negative_prompt,
+                "upload_image_path": upload_image_path,
+                "strength": strength,
+                "mask_image": mask_image,
+                "refine": refine,
+                "High_Noise_Frac": High_Noise_Frac,
+                "apply_watermark": apply_watermark,
+            }
+
+            # Add supported parameters to payload
+            for param, value in params.items():
+                if param in supported_params:
+                    payload[param] = value
+                    if value is None:return f"{param} is required parameter and it should not be None."
+                elif value is not None:
+                    return f"Model {model} does not support parameter '{param}'."
+
+            # Validate constraints on num_images
+            if num_images not in [1,2,3,4]:
+                return "num_images is the number of images to generate (Default: 1, 1 ≤ num_images ≤ 4)"
+            
+            # Validate guidance_scale
+            if not (1 <= guidance_scale <= 20):
+                return "guidance_scale is the scale of classifier-free guidance, higher means follow prompt more closely (Default: 7.5, 1 ≤ guidance_scale ≤ 20)"
+            
+            # Validate strength (if provided)
+            if strength is not None and not 0 <= strength <= 1:
+                return "strength is how much to follow the input image. 1 means ignore the image, 0 means follow the image exactly (Default: 0.8, 0 ≤ strength ≤ 1)"
+            
+            # Validate image path existence (if provided)
+            if upload_image_path is not None and not os.path.exists(upload_image_path):
+                return "upload_image_path must be a valid file path."
+            
+            # Validate mask image existence (if provided)
+            if mask_image is not None and not os.path.exists(mask_image):
+                return "mask_image must be a valid file path."
+            
+            # Validate refine (if provided)
+            if refine is not None and refine not in ["no_refiner", "expert_ensemble_refiner", "base_image_refiner"]:
+                return "refine must be either 'no_refiner', 'expert_ensemble_refiner', or 'base_image_refiner'."
+            
+            # Validate High_Noise_Frac (if provided)
+            if High_Noise_Frac is not None and not 0 <= High_Noise_Frac <= 1:
+                return "High_Noise_Frac is for expert_ensemble_refiner, the fraction of noise to use (Default: 0.8, 0 ≤ high_noise_frac ≤ 1)"
+            
+            # Validate apply_watermark (if provided)
+            if apply_watermark is not None and str(apply_watermark).lower() not in ["yes", "no"]:
+                return "apply_watermark must be either 'yes' or 'no'."
+            
+            # Make the API request to DeepInfra
+            url = f"https://api.deepinfra.com/v1/inference/{model_value}"
+
+            # Prepare the headers for the API request
+            headers = {"Accept": "text/event-stream","Accept-Encoding": "gzip, deflate, br, zstd","Accept-Language": "en-US,en;q=0.9,hi;q=0.8","Authorization": f"Bearer {bearer_token.replace('Bearer ', '')}","Connection": "keep-alive","Content-Type": "application/json","Dnt": "1","Host": "api.deepinfra.com","Origin": "https://deepinfra.com","Referer": "https://deepinfra.com/","Sec-Ch-Ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"","Sec-Ch-Ua-Mobile": "?0","Sec-Ch-Ua-Platform": "\"Windows\"","Sec-Fetch-Dest": "empty","Sec-Fetch-Mode": "cors","Sec-Fetch-Site": "same-site","User-Agent": f"{random.choice(UserAgents)}","X-Deepinfra-Source": "web-page"}
+            try:
+                # Convert payload to JSON
+                response = requests.request("POST", url, headers=headers, data=json.dumps(payload), timeout=None)
+
+                # Parse the API response as JSON
+                json_response = json.loads(response.content)
+
+                if response.status_code == 200:
+                    # Process each image in the response and save it to the file system
+                    for idx, image_data in enumerate(json_response.get('images', [])):
+                        try:
+                            # Extract and decode base64-encoded image data
+                            base64_image_data = image_data.split(",")[1]
+                            image_data = base64.b64decode(base64_image_data)
+                            
+                            # Define the filename for the saved image
+                            image_filename = f"{image_filename_prefix}-{idx+1}.jpg"
+                            
+                            # Save the image as a .jpg file
+                            with open(image_filename, "wb") as f:
+                                f.write(image_data)
+                            
+                            # Optionally print a success message for each saved image
+                            if prints:
+                                print(f"Image saved successfully as {image_filename}\n")
+                        except Exception as e:
+                            print(f"Failed to save image {idx+1}: {e}")
+
+                    # Return success message
+                    return "All images saved successfully.\n"
+                else:
+                    # Return the error details from the API response
+                    return f'Error: {json_response["detail"]["error"]}'
+            except Exception as E:return E
 
     class AutomaticSpeechRecognition:
         """
@@ -473,7 +740,7 @@ class DeepInfra:
         def generate(
             self,
             audio_file_path: str = "path/to/your/audio/file.mp3",
-            task:str = Literal["transcribe", "translate"],
+            task:str = "transcribe",
             model:str = "Whisper-large-v3",
             stream:bool = False
             ) -> str:
@@ -551,7 +818,6 @@ class DeepInfra:
 
             # Prepare the headers for the API request
             headers = {"Accept": "text/event-stream","Accept-Encoding": "gzip, deflate, br, zstd","Accept-Language": "en-US,en;q=0.9,hi;q=0.8","Connection": "keep-alive","Content-Type": "application/json","Dnt": "1","Host": "api.deepinfra.com","Origin": "https://deepinfra.com","Referer": "https://deepinfra.com/","Sec-Ch-Ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"","Sec-Ch-Ua-Mobile": "?0","Sec-Ch-Ua-Platform": "\"Windows\"","Sec-Fetch-Dest": "empty","Sec-Fetch-Mode": "cors","Sec-Fetch-Site": "same-site","User-Agent": f"{random.choice(UserAgents)}","X-Deepinfra-Source": "web-page"}
-            print(f"User-Agent: \033[1;33m{headers}\033[0m")
 
             try:
                 response = requests.request("POST", url, headers=headers, data=payload, timeout=None)
@@ -637,7 +903,6 @@ class DeepInfra:
             
             # Prepare the headers for the API request
             headers = {"Accept": "text/event-stream","Accept-Encoding": "gzip, deflate, br, zstd","Accept-Language": "en-US,en;q=0.9,hi;q=0.8","Connection": "keep-alive","Content-Type": "application/json","Dnt": "1","Host": "api.deepinfra.com","Origin": "https://deepinfra.com","Referer": "https://deepinfra.com/","Sec-Ch-Ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"","Sec-Ch-Ua-Mobile": "?0","Sec-Ch-Ua-Platform": "\"Windows\"","Sec-Fetch-Dest": "empty","Sec-Fetch-Mode": "cors","Sec-Fetch-Site": "same-site","User-Agent": f"{random.choice(UserAgents)}","X-Deepinfra-Source": "web-page"}
-            print(f"User-Agent: \033[1;33m{headers}\033[0m")
 
             try:
                 response = requests.request("POST", url, headers=headers, data=payload, timeout=None)
@@ -725,7 +990,6 @@ class DeepInfra:
                 
                 # Prepare the headers for the API request
                 headers = {"Accept": "text/event-stream","Accept-Encoding": "gzip, deflate, br, zstd","Accept-Language": "en-US,en;q=0.9,hi;q=0.8","Authorization": f"Bearer {bearer_token.replace('Bearer ', '')}","Connection": "keep-alive","Content-Type": "application/json","Dnt": "1","Host": "api.deepinfra.com","Origin": "https://deepinfra.com","Referer": "https://deepinfra.com/","Sec-Ch-Ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"","Sec-Ch-Ua-Mobile": "?0","Sec-Ch-Ua-Platform": "\"Windows\"","Sec-Fetch-Dest": "empty","Sec-Fetch-Mode": "cors","Sec-Fetch-Site": "same-site","User-Agent": f"{random.choice(UserAgents)}","X-Deepinfra-Source": "web-page"}
-                print(f"User-Agent: \033[1;33m{headers}\033[0m")
                     
                 # Make the POST request to the API with the prepared payload and headers
                 response = requests.request("POST", url, headers=headers, data=payload, timeout=None)
